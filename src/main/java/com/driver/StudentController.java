@@ -3,6 +3,7 @@ package com.driver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -112,12 +113,16 @@ public class StudentController {
     @GetMapping("/get-all-students")
     public ResponseEntity<List<String>> getAllStudents(){
         List<String> students = null; // Assign list of student by calling service layer method
-
+         students = new ArrayList<>();
         if(!studentHashMap.isEmpty()) {
             for (String name : studentHashMap.keySet()) {
-                students.add(name);
+//                assert students != null;
+                students.add(studentHashMap.get(name).getName());
             }
         }
+
+
+
 
         return new ResponseEntity<>(students, HttpStatus.CREATED);
     }
