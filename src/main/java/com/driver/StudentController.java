@@ -129,7 +129,7 @@ public class StudentController {
 
     @DeleteMapping("/delete-teacher-by-name")
     public ResponseEntity<String> deleteTeacherByName(@RequestParam String teacher){
-        if(!teacherHashMap.containsKey(teacher) || !teacherStudentHashMap.containsKey(teacher)) {
+        if(!teacherHashMap.containsKey(teacher) && !teacherStudentHashMap.containsKey(teacher)) {
             return new ResponseEntity<>("teacher does not exist", HttpStatus.BAD_REQUEST);
         }
         teacherHashMap.remove(teacher);
