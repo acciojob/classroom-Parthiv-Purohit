@@ -90,6 +90,11 @@ public class StudentController {
 
     @GetMapping("/get-students-by-teacher-name/{teacher}")
     public ResponseEntity<List<String>> getStudentsByTeacherName(@PathVariable String teacher){
+
+        if(!teacherStudentHashMap.containsKey(teacher)) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
         List<String> students = null; // Assign list of student by calling service layer method
         students = teacherStudentHashMap.get(teacher);
 
