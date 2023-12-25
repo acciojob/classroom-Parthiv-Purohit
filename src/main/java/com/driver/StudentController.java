@@ -74,6 +74,10 @@ public class StudentController {
 
     @GetMapping("/get-student-by-name/{name}")
     public ResponseEntity<Student> getStudentByName(@PathVariable String name){
+        if(!studentHashMap.containsKey(name))
+        {
+            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+        }
         Student student = null; // Assign student by calling service layer method
         student = studentHashMap.get(name);
 
@@ -82,6 +86,10 @@ public class StudentController {
 
     @GetMapping("/get-teacher-by-name/{name}")
     public ResponseEntity<Teacher> getTeacherByName(@PathVariable String name){
+        if(!teacherHashMap.containsKey(name))
+        {
+            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+        }
         Teacher teacher = null; // Assign student by calling service layer method
         teacher = teacherHashMap.get(name);
 
@@ -116,12 +124,12 @@ public class StudentController {
 
     @DeleteMapping("/delete-teacher-by-name")
     public ResponseEntity<String> deleteTeacherByName(@RequestParam String teacher){
-        if(!teacherHashMap.containsKey(teacher)) {
+        if(!teacherHashMap.containsKey(teacher) || !teacherStudentHashMap.containsKey(teacher)) {
             return new ResponseEntity<>("teacher does not exist", HttpStatus.BAD_REQUEST);
         }
         teacherHashMap.remove(teacher);
         // || !teacherStudentHashMap.containsKey(teacher)
-        //teacherStudentHashMap.remove(teacher);
+        teacherStudentHashMap.remove(teacher);
 
         return new ResponseEntity<>(teacher + " removed successfully", HttpStatus.CREATED);
     }
