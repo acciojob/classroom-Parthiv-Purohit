@@ -1,5 +1,7 @@
 package com.driver;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("students")
 public class StudentController {
 
+    HashMap<String,Student> studentHashMap = new HashMap<>();
+    HashMap<String,Teacher> teacherHashMap = new HashMap<>();
+    HashMap<String, List<String>>teacherStudentHashMap = new HashMap<>();
+
     @PostMapping("/add-student")
     public ResponseEntity<String> addStudent(@RequestBody Student student){
+
+        Student student1 = new Student(student.getName(),student.getAge(),student.getAverageScore());
+        studentHashMap.put(student1.getName(),student1);
+
 
         return new ResponseEntity<>("New student added successfully", HttpStatus.CREATED);
     }
@@ -28,11 +38,36 @@ public class StudentController {
     @PostMapping("/add-teacher")
     public ResponseEntity<String> addTeacher(@RequestBody Teacher teacher){
 
+        Teacher teacher1 = new Teacher(teacher.getName(),teacher.getNumberOfStudents(),teacher.getAge());
+        teacherHashMap.put(teacher1.getName(),teacher1);
+
         return new ResponseEntity<>("New teacher added successfully", HttpStatus.CREATED);
     }
 
     @PutMapping("/add-student-teacher-pair")
     public ResponseEntity<String> addStudentTeacherPair(@RequestParam String student, @RequestParam String teacher){
+
+        if (!teacherHashMap.containsKey((teacher)))
+        {
+            return new ResponseEntity<>("teacher not found", HttpStatus.NOT_FOUND);
+        }
+        if (!studentHashMap.containsKey((student)))
+        {
+            return new ResponseEntity<>("student not found", HttpStatus.NOT_FOUND);
+        }
+
+        Teacher teacher1 = teacherHashMap.get(teacher);
+        Student student1 = studentHashMap.get(student);
+        if(teacherStudentHashMap.containsKey(teacher1.getName()))
+        {
+            teacherStudentHashMap.get(teacher1.getName()).add(student1.getName());
+        }
+        else {
+            List<String> arr = new ArrayList<>();
+            arr.add(student1.getName());
+            teacherStudentHashMap.put(teacher1.getName(), arr);
+        }
+
 
         return new ResponseEntity<>("New student-teacher pair added successfully", HttpStatus.CREATED);
     }
@@ -40,6 +75,7 @@ public class StudentController {
     @GetMapping("/get-student-by-name/{name}")
     public ResponseEntity<Student> getStudentByName(@PathVariable String name){
         Student student = null; // Assign student by calling service layer method
+        student = studentHashMap.get(name);
 
         return new ResponseEntity<>(student, HttpStatus.CREATED);
     }
@@ -47,6 +83,7 @@ public class StudentController {
     @GetMapping("/get-teacher-by-name/{name}")
     public ResponseEntity<Teacher> getTeacherByName(@PathVariable String name){
         Teacher teacher = null; // Assign student by calling service layer method
+        teacher = teacherHashMap.get(name);
 
         return new ResponseEntity<>(teacher, HttpStatus.CREATED);
     }
@@ -54,6 +91,7 @@ public class StudentController {
     @GetMapping("/get-students-by-teacher-name/{teacher}")
     public ResponseEntity<List<String>> getStudentsByTeacherName(@PathVariable String teacher){
         List<String> students = null; // Assign list of student by calling service layer method
+        students = teacherStudentHashMap.get(teacher);
 
         return new ResponseEntity<>(students, HttpStatus.CREATED);
     }
@@ -62,16 +100,30 @@ public class StudentController {
     public ResponseEntity<List<String>> getAllStudents(){
         List<String> students = null; // Assign list of student by calling service layer method
 
+        if(!studentHashMap.isEmpty()) {
+            for (String name : studentHashMap.keySet()) {
+                students.add(name);
+            }
+        }
+
         return new ResponseEntity<>(students, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete-teacher-by-name")
     public ResponseEntity<String> deleteTeacherByName(@RequestParam String teacher){
+        if(!teacherHashMap.containsKey(teacher) || !teacherStudentHashMap.containsKey(teacher)) {
+            return new ResponseEntity<>("teacher does not exist", HttpStatus.BAD_REQUEST);
+        }
+        teacherHashMap.remove(teacher);
+        teacherStudentHashMap.remove(teacher);
 
         return new ResponseEntity<>(teacher + " removed successfully", HttpStatus.CREATED);
     }
     @DeleteMapping("/delete-all-teachers")
     public ResponseEntity<String> deleteAllTeachers(){
+
+        teacherHashMap.clear();
+        teacherStudentHashMap.clear();
 
         return new ResponseEntity<>("All teachers deleted successfully", HttpStatus.CREATED);
     }
