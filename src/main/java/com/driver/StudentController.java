@@ -120,7 +120,7 @@ public class StudentController {
             return new ResponseEntity<>("teacher does not exist", HttpStatus.BAD_REQUEST);
         }
         teacherHashMap.remove(teacher);
-        teacherStudentHashMap.remove(teacher);
+        //teacherStudentHashMap.remove(teacher);
 
         return new ResponseEntity<>(teacher + " removed successfully", HttpStatus.CREATED);
     }
